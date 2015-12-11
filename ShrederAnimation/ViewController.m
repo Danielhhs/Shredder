@@ -16,11 +16,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    UIImageView *image = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    UIImageView *image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 100, self.view.bounds.size.width, self.view.bounds.size.height - 200)];
     image.image = [UIImage imageNamed:@"image.jpg"];
     
     self.renderer = [[ShredderRenderer alloc] init];
-    [self.renderer startShredderingView:image inContainerView:self.view numberOfPieces:8 animationDuration:3];
+    [self.renderer startShredderingView:image inContainerView:self.view numberOfPieces:9 animationDuration:3];
     // Do any additional setup after loading the view, typically from a nib.
 }
 

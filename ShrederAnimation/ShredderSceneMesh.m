@@ -19,6 +19,7 @@
 @property (nonatomic) size_t screenHeight;
 @property (nonatomic) CGFloat shredderCurlRadius;
 @property (nonatomic) CGFloat centerLocation;
+@property (nonatomic, strong) NSMutableArray *radiusSet;
 @end
 
 
@@ -30,7 +31,7 @@
     _yResolution = yResolution;
     _screenWidth = screenWidth;
     _screenHeight = screenHeight;
-    _shredderCurlRadius = screenHeight / 0.5;
+    [self generateRadiusForEachColumn];
     _centerLocation = 0;
     vertexCount = (GLsizei)((xResolution * 2) * (yResolution + 1));
     vertices = malloc(sizeof(SceneMeshVertex) * vertexCount);
@@ -46,6 +47,7 @@
             vertex->position.z = 0;
             vertex->texCoords.s = tx;
             vertex->texCoords.t = tv;
+            vertex->normal = GLKVector3Make(0, 0, 1);
         }
     }
     
@@ -71,7 +73,12 @@
 
 - (void) drawEntireMesh
 {
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_SHORT, NULL);
+    for (int i = 1; i < self.xResolution ; i+=2) {
+        glDrawElements(GL_TRIANGLES, 6 * self.yResolution, GL_UNSIGNED_SHORT, NULL + i * 6 * self.yResolution * sizeof(GLushort));
+    }
+    for (int i = 0; i < self.xResolution; i+=2) {
+        glDrawElements(GL_TRIANGLES, 6 * self.yResolution, GL_UNSIGNED_SHORT, NULL + i * 6 * self.yResolution * sizeof(GLushort));;
+    }
 }
 
 - (void) prepareToDraw
@@ -104,18 +111,36 @@
 {
     GLfloat shredderLocation = self.screenHeight * percent;
     self.centerLocation = shredderLocation;
-    for (int y = 0; y < shredderLocation; y++) {
+    for (int y = 0; y <= shredderLocation; y++) {
         GLfloat centerAngle = (CGFloat)(shredderLocation - y) / self.shredderCurlRadius;
         for (int x = 0; x < self.xResolution * 2; x++) {
+            CGFloat radius = [self.radiusSet[x / 2] doubleValue];
             SceneMeshVertex *vertex = &vertices[y * (self.xResolution * 2) + x];
-            vertex->position.y = shredderLocation - self.shredderCurlRadius * sinf(centerAngle);
-            vertex->position.z = self.shredderCurlRadius * (1 - cosf(centerAngle));
+            vertex->position.y = shredderLocation - radius * sinf(centerAngle);
+            vertex->position.z = radius * (1 - cosf(centerAngle));
+            GLKVector3 center = GLKVector3Make(vertex->position.x, shredderLocation, radius);
+            GLKVector3 normal = GLKVector3Make(0, center.y - vertex->position.y, center.z - vertex->position.z);
+            vertex->normal = normal;
             if (x % 4 >= 2) {
-                vertex->position.z -= 10;
+                vertex->position.z -= 20;
             }
         }
     }
     [self makeDynamicAndUpdateWithVertices:vertices numberOfVertices:vertexCount];
+}
+
+- (void) generateRadiusForEachColumn
+{
+    CGFloat amplitude = self.screenHeight / 10;
+    _radiusSet = [NSMutableArray array];
+    _shredderCurlRadius = self.screenHeight / 0.3;
+    int min = -50;
+    int max = 50;
+    for (int i = 0; i < self.xResolution; i++) {
+        int randomNumber = min + rand() % (max-min);
+        double factor = (double) randomNumber / (max - min);
+        [_radiusSet addObject:@(_shredderCurlRadius + factor * amplitude)];
+    }
 }
 
 @end
