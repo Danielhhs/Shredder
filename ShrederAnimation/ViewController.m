@@ -7,15 +7,20 @@
 //
 
 #import "ViewController.h"
-
+#import "ShredderRenderer.h"
 @interface ViewController ()
-
+@property (nonatomic, strong) ShredderRenderer *renderer;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    UIImageView *image = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    image.image = [UIImage imageNamed:@"image.jpg"];
+    
+    self.renderer = [[ShredderRenderer alloc] init];
+    [self.renderer startShredderingView:image inContainerView:self.view numberOfPieces:8 animationDuration:3];
     // Do any additional setup after loading the view, typically from a nib.
 }
 
