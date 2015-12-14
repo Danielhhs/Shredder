@@ -127,11 +127,7 @@ typedef struct {
         for (int x = 0; x < self.xResolution * 2; x++) {
 //            CGFloat radius = [self.radiusSet[x / 2] doubleValue];
             ShredderVertex *vertex = &vertices[y * (self.xResolution * 2) + x];
-            if (percent <= 0.618) {
-                vertex->cylinderCenter.y = shredderLocation;
-            } else {
-                vertex->cylinderCenter.y = self.screenHeight * 0.618;
-            }
+            vertex->cylinderCenter.y = shredderLocation;
         }
     }
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
