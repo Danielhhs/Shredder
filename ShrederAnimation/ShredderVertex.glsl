@@ -15,7 +15,7 @@ out vec3 v_normal;
 
 void main() {
     vec4 position = a_position;
-    if (position.y < u_shredderPosition) {
+    if (position.y <= u_shredderPosition) {
         float angle = (a_cylinderCenter.y - a_position.y) / a_cylinderCenter.z;
         position.y = a_cylinderCenter.y - a_cylinderCenter.z * sin(angle);
         position.z = a_cylinderCenter.z * (1.0 - cos(angle));

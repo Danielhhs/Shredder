@@ -7,8 +7,9 @@
 //
 
 #import "ShredderRenderer.h"
-#import "ShredderSceneMesh.h"
+#import "ShredderFrontSceneMesh.h"
 #import "OpenGLHelper.h"
+#import "ShredderBackSceneMesh.h"
 @interface ShredderRenderer() {
     GLuint program;
     GLuint mvpLoc;
@@ -16,10 +17,15 @@
     GLuint texture;
     GLuint shredderPositionLoc;
     GLfloat shredderPosition;
+    GLuint backProgram;
+    GLuint backMvpLoc;
+    GLuint backSamplerLoc;
+    GLuint backShredderPotisionLoc;
 }
 @property (nonatomic, strong) EAGLContext *context;
 @property (nonatomic, strong) GLKView *animationView;
-@property (nonatomic, strong) ShredderSceneMesh *mesh;
+@property (nonatomic, strong) ShredderFrontSceneMesh *mesh;
+@property (nonatomic, strong) ShredderBackSceneMesh *backMesh;
 @property (nonatomic) NSTimeInterval duration;
 @property (nonatomic) NSTimeInterval elapsedTime;
 @property (nonatomic, strong) CADisplayLink *displayLink;
@@ -46,6 +52,13 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     mvpLoc = glGetUniformLocation(program, "u_mvpMatrix");
     samplerLoc = glGetUniformLocation(program, "s_tex");
     shredderPositionLoc = glGetUniformLocation(program, "u_shredderPosition");
+    
+    backProgram = [OpenGLHelper loadProgramWithVertexShaderSrc:@"ShredderVertexShadow.glsl" fragmentShaderSrc:@"ShredderFragmentShadow.glsl"];
+    glUseProgram(backProgram);
+    backMvpLoc = glGetUniformLocation(backProgram, "u_mvpMatrix");
+    backSamplerLoc = glGetUniformLocation(backProgram, "s_tex");
+    backShredderPotisionLoc = glGetUniformLocation(backProgram, "u_shredderPosition");
+    
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -67,6 +80,18 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     
 //    GLfloat mvp[16];
 //    OrthoM4x4(mvp, 0, view.bounds.size.width, 0, view.bounds.size.height, -1000, 1000);
+    
+    
+    glUseProgram(backProgram);
+    glUniformMatrix4fv(backMvpLoc, 1, GL_FALSE, mvp.m);
+    glUniform1f(backShredderPotisionLoc, shredderPosition);
+    [self.backMesh prepareToDraw];
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glUniform1i(backSamplerLoc, 0);
+    [self.backMesh drawEntireMesh];
+    
+    glUseProgram(program);
     glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, mvp.m);
     glUniform1f(shredderPositionLoc, shredderPosition);
     
@@ -75,6 +100,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(samplerLoc, 0);
     [self.mesh drawEntireMesh];
+    
 }
 
 - (void) setupTextureWithView:(UIView *)view
@@ -107,7 +133,8 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     [self setupGL];
     self.animationView = [[GLKView alloc] initWithFrame:view.frame context:self.context];
     self.animationView.delegate = self;
-    self.mesh = [[ShredderSceneMesh alloc] initWithXResolution:(GLuint)numberOfPieces yResolution:view.bounds.size.height screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];
+    self.mesh = [[ShredderFrontSceneMesh alloc] initWithXResolution:(GLuint)numberOfPieces yResolution:view.bounds.size.height screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];
+    self.backMesh = [[ShredderBackSceneMesh alloc] initWithXResolution:(GLuint)numberOfPieces yResolution:view.bounds.size.height screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];
     [self setupTextureWithView:view];
     [containerView addSubview:self.animationView];
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update:)];
@@ -120,9 +147,12 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     if (self.elapsedTime < self.duration) {
         shredderPosition = self.animationView.bounds.size.height * (self.elapsedTime / self.duration);
         [self.mesh updateWithPercent:(self.elapsedTime / self.duration)];
+        [self.backMesh updateWithPercent:(self.elapsedTime / self.duration)];
         [self.animationView display];
     } else {
+        shredderPosition = self.animationView.bounds.size.height;
         [self.mesh updateWithPercent:1];
+        [self.backMesh updateWithPercent:1];
         [self.animationView display];
         [self.displayLink invalidate];
     }

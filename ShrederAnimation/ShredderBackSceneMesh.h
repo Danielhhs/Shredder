@@ -1,5 +1,5 @@
 //
-//  ShredderSceneMesh.m
+//  ShredderBackSceneMesh.h
 //  ShrederAnimation
 //
 //  Created by Huang Hongsen on 12/14/15.
@@ -8,6 +8,5 @@
 
 #import "ShredderSceneMesh.h"
 
-@implementation ShredderSceneMesh
-
+@interface ShredderBackSceneMesh : ShredderSceneMesh
 @end

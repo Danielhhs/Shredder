@@ -23,9 +23,11 @@
 		541ECB141C0E98800078BC02 /* ShredderFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 541ECB131C0E98800078BC02 /* ShredderFragment.glsl */; };
 		542BDA111C1AD6B40061ECD7 /* ShredderVertexShadow.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 542BDA101C1AD6B40061ECD7 /* ShredderVertexShadow.glsl */; };
 		542BDA131C1AD6C00061ECD7 /* ShredderFragmentShadow.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 542BDA121C1AD6C00061ECD7 /* ShredderFragmentShadow.glsl */; };
+		542BDAA01C1ECC520061ECD7 /* ShredderBackSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 542BDA9F1C1ECC520061ECD7 /* ShredderBackSceneMesh.m */; };
+		542BDAA31C1ECC930061ECD7 /* ShredderSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 542BDAA21C1ECC930061ECD7 /* ShredderSceneMesh.m */; };
 		54D8AC411C16F64E00672A17 /* SceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC3C1C16F64E00672A17 /* SceneMesh.m */; };
 		54D8AC421C16F64E00672A17 /* ShredderRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC3E1C16F64E00672A17 /* ShredderRenderer.m */; };
-		54D8AC431C16F64E00672A17 /* ShredderSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC401C16F64E00672A17 /* ShredderSceneMesh.m */; };
+		54D8AC431C16F64E00672A17 /* ShredderFrontSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC401C16F64E00672A17 /* ShredderFrontSceneMesh.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,12 +73,16 @@
 		541ECB131C0E98800078BC02 /* ShredderFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ShredderFragment.glsl; sourceTree = "<group>"; };
 		542BDA101C1AD6B40061ECD7 /* ShredderVertexShadow.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ShredderVertexShadow.glsl; sourceTree = "<group>"; };
 		542BDA121C1AD6C00061ECD7 /* ShredderFragmentShadow.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ShredderFragmentShadow.glsl; sourceTree = "<group>"; };
+		542BDA9E1C1ECC520061ECD7 /* ShredderBackSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderBackSceneMesh.h; sourceTree = "<group>"; };
+		542BDA9F1C1ECC520061ECD7 /* ShredderBackSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderBackSceneMesh.m; sourceTree = "<group>"; };
+		542BDAA11C1ECC930061ECD7 /* ShredderSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderSceneMesh.h; sourceTree = "<group>"; };
+		542BDAA21C1ECC930061ECD7 /* ShredderSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderSceneMesh.m; sourceTree = "<group>"; };
 		54D8AC3B1C16F64E00672A17 /* SceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneMesh.h; sourceTree = "<group>"; };
 		54D8AC3C1C16F64E00672A17 /* SceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SceneMesh.m; sourceTree = "<group>"; };
 		54D8AC3D1C16F64E00672A17 /* ShredderRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderRenderer.h; sourceTree = "<group>"; };
 		54D8AC3E1C16F64E00672A17 /* ShredderRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderRenderer.m; sourceTree = "<group>"; };
-		54D8AC3F1C16F64E00672A17 /* ShredderSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderSceneMesh.h; sourceTree = "<group>"; };
-		54D8AC401C16F64E00672A17 /* ShredderSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderSceneMesh.m; sourceTree = "<group>"; };
+		54D8AC3F1C16F64E00672A17 /* ShredderFrontSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderFrontSceneMesh.h; sourceTree = "<group>"; };
+		54D8AC401C16F64E00672A17 /* ShredderFrontSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderFrontSceneMesh.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,8 +149,12 @@
 				54D8AC3C1C16F64E00672A17 /* SceneMesh.m */,
 				54D8AC3D1C16F64E00672A17 /* ShredderRenderer.h */,
 				54D8AC3E1C16F64E00672A17 /* ShredderRenderer.m */,
-				54D8AC3F1C16F64E00672A17 /* ShredderSceneMesh.h */,
-				54D8AC401C16F64E00672A17 /* ShredderSceneMesh.m */,
+				542BDAA11C1ECC930061ECD7 /* ShredderSceneMesh.h */,
+				542BDAA21C1ECC930061ECD7 /* ShredderSceneMesh.m */,
+				54D8AC3F1C16F64E00672A17 /* ShredderFrontSceneMesh.h */,
+				54D8AC401C16F64E00672A17 /* ShredderFrontSceneMesh.m */,
+				542BDA9E1C1ECC520061ECD7 /* ShredderBackSceneMesh.h */,
+				542BDA9F1C1ECC520061ECD7 /* ShredderBackSceneMesh.m */,
 				541ECB0E1C0E97C20078BC02 /* OpenGLHelper.h */,
 				541ECB0F1C0E97C20078BC02 /* OpenGLHelper.m */,
 				541ECB0C1C0E8C6B0078BC02 /* image.jpg */,
@@ -320,11 +330,13 @@
 			files = (
 				541ECA4B1C0AB0F10078BC02 /* ViewController.m in Sources */,
 				541ECA481C0AB0F10078BC02 /* AppDelegate.m in Sources */,
-				54D8AC431C16F64E00672A17 /* ShredderSceneMesh.m in Sources */,
+				54D8AC431C16F64E00672A17 /* ShredderFrontSceneMesh.m in Sources */,
 				541ECB101C0E97C20078BC02 /* OpenGLHelper.m in Sources */,
+				542BDAA31C1ECC930061ECD7 /* ShredderSceneMesh.m in Sources */,
 				54D8AC421C16F64E00672A17 /* ShredderRenderer.m in Sources */,
 				541ECA451C0AB0F10078BC02 /* main.m in Sources */,
 				54D8AC411C16F64E00672A17 /* SceneMesh.m in Sources */,
+				542BDAA01C1ECC520061ECD7 /* ShredderBackSceneMesh.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

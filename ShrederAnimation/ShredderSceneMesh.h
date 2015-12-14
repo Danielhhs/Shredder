@@ -2,11 +2,19 @@
 //  ShredderSceneMesh.h
 //  ShrederAnimation
 //
-//  Created by Huang Hongsen on 15/12/2.
-//  Copyright © 2015年 cn.daniel. All rights reserved.
+//  Created by Huang Hongsen on 12/14/15.
+//  Copyright © 2015 cn.daniel. All rights reserved.
 //
 
 #import "SceneMesh.h"
+
+
+typedef struct {
+    GLKVector3 position;
+    GLKVector3 normal;
+    GLKVector2 texCoords;
+    GLKVector3 cylinderCenter;
+}ShredderVertex;
 
 @interface ShredderSceneMesh : SceneMesh
 
