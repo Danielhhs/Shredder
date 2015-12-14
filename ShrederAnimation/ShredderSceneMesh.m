@@ -8,8 +8,15 @@
 
 #import "ShredderSceneMesh.h"
 
+typedef struct {
+    GLKVector3 position;
+    GLKVector3 normal;
+    GLKVector2 texCoords;
+    GLKVector3 cylinderCenter;
+}ShredderVertex;
+
 @interface ShredderSceneMesh() {
-    SceneMeshVertex *vertices;
+    ShredderVertex *vertices;
     GLsizei vertexCount;
     GLsizei indexCount;
 }
@@ -34,20 +41,21 @@
     [self generateRadiusForEachColumn];
     _centerLocation = 0;
     vertexCount = (GLsizei)((xResolution * 2) * (yResolution + 1));
-    vertices = malloc(sizeof(SceneMeshVertex) * vertexCount);
+    vertices = malloc(sizeof(ShredderVertex) * vertexCount);
     
     for (int y = 0; y < yResolution + 1; y++) {
         GLfloat tv = (GLfloat) y / yResolution;
         GLfloat vy = tv * screenHeight;
         for (int x = 0; x < xResolution * 2; x++) {
             GLfloat tx = (x + 1) / 2 / (GLfloat)xResolution;
-            SceneMeshVertex *vertex = &vertices[y * (xResolution * 2) + x];
+            ShredderVertex *vertex = &vertices[y * (xResolution * 2) + x];
             vertex->position.x = tx * screenWidth;
             vertex->position.y = vy;
             vertex->position.z = 0;
             vertex->texCoords.s = tx;
             vertex->texCoords.t = tv;
             vertex->normal = GLKVector3Make(0, 0, 1);
+            vertex->cylinderCenter = GLKVector3Make(vertex->position.x, 0, [self.radiusSet[x / 2] doubleValue] - 20);
         }
     }
     
@@ -66,7 +74,7 @@
             indicies[idx * 6 + 5] = i + xResolution * 2 + 1;
         }
     }
-    NSData *vertexData = [NSData dataWithBytes:vertices length:vertexCount * sizeof(SceneMeshVertex)];
+    NSData *vertexData = [NSData dataWithBytes:vertices length:vertexCount * sizeof(ShredderVertex)];
     NSData *indexData = [NSData dataWithBytes:indicies length:indexCount * sizeof(GLushort)];
     return [self initWithVerticesData:vertexData indicesData:indexData];
 }
@@ -96,13 +104,16 @@
     
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SceneMeshVertex), NULL + offsetof(SceneMeshVertex, position));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ShredderVertex), NULL + offsetof(ShredderVertex, position));
     
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(SceneMeshVertex), NULL + offsetof(SceneMeshVertex, normal));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ShredderVertex), NULL + offsetof(ShredderVertex, normal));
     
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(SceneMeshVertex), NULL + offsetof(SceneMeshVertex, texCoords));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ShredderVertex), NULL + offsetof(ShredderVertex, texCoords));
+    
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ShredderVertex), NULL + offsetof(ShredderVertex, cylinderCenter));
         
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 }
@@ -112,28 +123,27 @@
     GLfloat shredderLocation = self.screenHeight * percent;
     self.centerLocation = shredderLocation;
     for (int y = 0; y <= shredderLocation; y++) {
-        GLfloat centerAngle = (CGFloat)(shredderLocation - y) / self.shredderCurlRadius;
+//        GLfloat centerAngle = (CGFloat)(shredderLocation - y) / self.shredderCurlRadius;
         for (int x = 0; x < self.xResolution * 2; x++) {
-            CGFloat radius = [self.radiusSet[x / 2] doubleValue];
-            SceneMeshVertex *vertex = &vertices[y * (self.xResolution * 2) + x];
-            vertex->position.y = shredderLocation - radius * sinf(centerAngle);
-            vertex->position.z = radius * (1 - cosf(centerAngle));
-            GLKVector3 center = GLKVector3Make(vertex->position.x, shredderLocation, radius);
-            GLKVector3 normal = GLKVector3Make(0, center.y - vertex->position.y, center.z - vertex->position.z);
-            vertex->normal = normal;
-            if (x % 4 >= 2) {
-                vertex->position.z -= 20;
+//            CGFloat radius = [self.radiusSet[x / 2] doubleValue];
+            ShredderVertex *vertex = &vertices[y * (self.xResolution * 2) + x];
+            if (percent <= 0.618) {
+                vertex->cylinderCenter.y = shredderLocation;
+            } else {
+                vertex->cylinderCenter.y = self.screenHeight * 0.618;
             }
         }
     }
-    [self makeDynamicAndUpdateWithVertices:vertices numberOfVertices:vertexCount];
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ShredderVertex) * vertexCount, vertices, GL_DYNAMIC_DRAW);
 }
+
 
 - (void) generateRadiusForEachColumn
 {
     CGFloat amplitude = self.screenHeight / 10;
     _radiusSet = [NSMutableArray array];
-    _shredderCurlRadius = self.screenHeight / 0.3;
+    _shredderCurlRadius = self.screenHeight / 0.15;
     int min = -50;
     int max = 50;
     for (int i = 0; i < self.xResolution; i++) {

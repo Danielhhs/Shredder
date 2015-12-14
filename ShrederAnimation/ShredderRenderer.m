@@ -14,6 +14,8 @@
     GLuint mvpLoc;
     GLuint samplerLoc;
     GLuint texture;
+    GLuint shredderPositionLoc;
+    GLfloat shredderPosition;
 }
 @property (nonatomic, strong) EAGLContext *context;
 @property (nonatomic, strong) GLKView *animationView;
@@ -43,6 +45,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     glUseProgram(program);
     mvpLoc = glGetUniformLocation(program, "u_mvpMatrix");
     samplerLoc = glGetUniformLocation(program, "s_tex");
+    shredderPositionLoc = glGetUniformLocation(program, "u_shredderPosition");
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -65,6 +68,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
 //    GLfloat mvp[16];
 //    OrthoM4x4(mvp, 0, view.bounds.size.width, 0, view.bounds.size.height, -1000, 1000);
     glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, mvp.m);
+    glUniform1f(shredderPositionLoc, shredderPosition);
     
     [self.mesh prepareToDraw];
     glActiveTexture(GL_TEXTURE0);
@@ -114,6 +118,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
 {
     self.elapsedTime += displayLink.duration;
     if (self.elapsedTime < self.duration) {
+        shredderPosition = self.animationView.bounds.size.height * (self.elapsedTime / self.duration);
         [self.mesh updateWithPercent:(self.elapsedTime / self.duration)];
         [self.animationView display];
     } else {
