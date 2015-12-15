@@ -21,6 +21,8 @@
     GLuint backMvpLoc;
     GLuint backSamplerLoc;
     GLuint backShredderPotisionLoc;
+    GLuint columnWidthLoc;
+    GLfloat columnWidth;
 }
 @property (nonatomic, strong) EAGLContext *context;
 @property (nonatomic, strong) GLKView *animationView;
@@ -58,6 +60,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     backMvpLoc = glGetUniformLocation(backProgram, "u_mvpMatrix");
     backSamplerLoc = glGetUniformLocation(backProgram, "s_tex");
     backShredderPotisionLoc = glGetUniformLocation(backProgram, "u_shredderPosition");
+    columnWidthLoc = glGetUniformLocation(backProgram, "u_columnWidth");
     
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -85,6 +88,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     glUseProgram(backProgram);
     glUniformMatrix4fv(backMvpLoc, 1, GL_FALSE, mvp.m);
     glUniform1f(backShredderPotisionLoc, shredderPosition);
+    glUniform1f(columnWidthLoc, columnWidth);
     [self.backMesh prepareToDraw];
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -131,6 +135,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     self.duration = duration;
     self.elapsedTime = 0.f;
     [self setupGL];
+    columnWidth = (GLfloat)view.bounds.size.width / numberOfPieces;
     self.animationView = [[GLKView alloc] initWithFrame:view.frame context:self.context];
     self.animationView.delegate = self;
     self.mesh = [[ShredderFrontSceneMesh alloc] initWithXResolution:(GLuint)numberOfPieces yResolution:view.bounds.size.height screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];

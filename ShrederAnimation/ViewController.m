@@ -20,7 +20,7 @@
     image.image = [UIImage imageNamed:@"image.jpg"];
     
     self.renderer = [[ShredderRenderer alloc] init];
-    [self.renderer startShredderingView:image inContainerView:self.view numberOfPieces:9 animationDuration:3];
+    [self.renderer startShredderingView:image inContainerView:self.view numberOfPieces:17 animationDuration:3];
     // Do any additional setup after loading the view, typically from a nib.
 }
 

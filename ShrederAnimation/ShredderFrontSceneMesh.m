@@ -132,7 +132,7 @@
 {
     CGFloat amplitude = self.screenHeight / 10;
     _radiusSet = [NSMutableArray array];
-    _shredderCurlRadius = self.screenHeight / 0.15;
+    _shredderCurlRadius = self.screenHeight / 0.2;
     int min = -50;
     int max = 50;
     for (int i = 0; i < self.xResolution; i++) {

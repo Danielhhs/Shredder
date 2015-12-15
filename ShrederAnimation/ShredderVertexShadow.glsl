@@ -10,6 +10,7 @@ layout(location = 3) in vec3 a_cylinderCenter;
 
 out vec2 v_texCoord;
 out vec3 v_normal;
+out vec2 v_position;
 
 #define M_PI 3.14159265358979323846264338327950288
 
@@ -18,9 +19,10 @@ void main() {
     if (position.y <= u_shredderPosition) {
         float angle = (a_cylinderCenter.y - a_position.y) / a_cylinderCenter.z;
         position.y = a_cylinderCenter.y - a_cylinderCenter.z * sin(angle);
-        position.z = a_cylinderCenter.z * (1.0 - cos(angle)) - 20.0;
+        position.z = a_cylinderCenter.z * (1.0 - cos(angle)) - 10.0;
     }
     gl_Position = u_mvpMatrix * position;
     v_texCoord = a_texCoord;
     v_normal = a_cylinderCenter - position.xyz;
+    v_position = gl_Position.xy;
 }
