@@ -7,9 +7,10 @@
 //
 
 #import "ShredderRenderer.h"
-#import "ShredderFrontSceneMesh.h"
+//#import "ShredderFrontSceneMesh.h"
 #import "OpenGLHelper.h"
-#import "ShredderBackSceneMesh.h"
+//#import "ShredderBackSceneMesh.h"
+#import "ShredderPaperPieceSceneMesh.h"
 @interface ShredderRenderer() {
     GLuint program;
     GLuint mvpLoc;
@@ -26,8 +27,10 @@
 }
 @property (nonatomic, strong) EAGLContext *context;
 @property (nonatomic, strong) GLKView *animationView;
-@property (nonatomic, strong) ShredderFrontSceneMesh *mesh;
-@property (nonatomic, strong) ShredderBackSceneMesh *backMesh;
+//@property (nonatomic, strong) ShredderFrontSceneMesh *mesh;
+//@property (nonatomic, strong) ShredderBackSceneMesh *backMesh;
+@property (nonatomic, strong) NSMutableArray *frontMeshes;
+@property (nonatomic, strong) NSMutableArray *backMeshes;
 @property (nonatomic) NSTimeInterval duration;
 @property (nonatomic) NSTimeInterval elapsedTime;
 @property (nonatomic, strong) CADisplayLink *displayLink;
@@ -81,29 +84,28 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     GLKMatrix4 perspective = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(90), aspect, 0.1, 1000);
     GLKMatrix4 mvp = GLKMatrix4Multiply(perspective, modelView);
     
-//    GLfloat mvp[16];
-//    OrthoM4x4(mvp, 0, view.bounds.size.width, 0, view.bounds.size.height, -1000, 1000);
-    
-    
     glUseProgram(backProgram);
     glUniformMatrix4fv(backMvpLoc, 1, GL_FALSE, mvp.m);
     glUniform1f(backShredderPotisionLoc, shredderPosition);
     glUniform1f(columnWidthLoc, columnWidth);
-    [self.backMesh prepareToDraw];
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glUniform1i(backSamplerLoc, 0);
-    [self.backMesh drawEntireMesh];
-    
+    for (ShredderPaperPieceSceneMesh *mesh in self.backMeshes) {
+        [mesh prepareToDraw];
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(samplerLoc, 0);
+        [mesh drawEntireMesh];
+    }
+
     glUseProgram(program);
     glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, mvp.m);
     glUniform1f(shredderPositionLoc, shredderPosition);
     
-    [self.mesh prepareToDraw];
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glUniform1i(samplerLoc, 0);
-    [self.mesh drawEntireMesh];
+    for (ShredderPaperPieceSceneMesh *mesh in self.frontMeshes) {
+        [mesh prepareToDraw];
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUniform1i(samplerLoc, 0);
+        [mesh drawEntireMesh];
+    }
     
 }
 
@@ -138,8 +140,16 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     columnWidth = (GLfloat)view.bounds.size.width / numberOfPieces;
     self.animationView = [[GLKView alloc] initWithFrame:view.frame context:self.context];
     self.animationView.delegate = self;
-    self.mesh = [[ShredderFrontSceneMesh alloc] initWithXResolution:(GLuint)numberOfPieces yResolution:view.bounds.size.height screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];
-    self.backMesh = [[ShredderBackSceneMesh alloc] initWithXResolution:(GLuint)numberOfPieces yResolution:view.bounds.size.height screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];
+    self.frontMeshes = [NSMutableArray array];
+    self.backMeshes = [NSMutableArray array];
+    for (int i = 0; i < numberOfPieces; i+=2) {
+        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height totalPieces:numberOfPieces index:i];
+        [self.frontMeshes addObject:mesh];
+    }
+    for (int i = 1; i < numberOfPieces; i+=2) {
+        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height totalPieces:numberOfPieces index:i];
+        [self.backMeshes addObject:mesh];
+    }
     [self setupTextureWithView:view];
     [containerView addSubview:self.animationView];
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update:)];
@@ -150,16 +160,25 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
 {
     self.elapsedTime += displayLink.duration;
     if (self.elapsedTime < self.duration) {
-        shredderPosition = self.animationView.bounds.size.height * (self.elapsedTime / self.duration);
-        [self.mesh updateWithPercent:(self.elapsedTime / self.duration)];
-        [self.backMesh updateWithPercent:(self.elapsedTime / self.duration)];
+        CGFloat percent = (self.elapsedTime / self.duration);
+        shredderPosition = self.animationView.bounds.size.height * percent;
+        [self updateMeshesWithPercent:percent];
         [self.animationView display];
     } else {
         shredderPosition = self.animationView.bounds.size.height;
-        [self.mesh updateWithPercent:1];
-        [self.backMesh updateWithPercent:1];
+        [self updateMeshesWithPercent:1.f];
         [self.animationView display];
         [self.displayLink invalidate];
+    }
+}
+
+- (void) updateMeshesWithPercent:(CGFloat)percent
+{
+    for (ShredderPaperPieceSceneMesh *mesh in self.frontMeshes) {
+        [mesh updateWithPercentage:percent];
+    }
+    for (ShredderPaperPieceSceneMesh *mesh in self.backMeshes) {
+        [mesh updateWithPercentage:percent];
     }
 }
 
