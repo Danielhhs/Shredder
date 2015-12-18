@@ -19,10 +19,10 @@ void main() {
     float alpha = 1.0;
     if (v_position.y <= u_shredderPosition) {
         float offset = v_position.x - v_pieceWidthRange.x;
-        alpha = offset / ((v_pieceWidthRange.y - v_pieceWidthRange.x) / 2.0);
+        alpha = 0.4 + offset / ((v_pieceWidthRange.y - v_pieceWidthRange.x) / 2.0);
         alpha = clamp(0.0, 1.0, alpha);
         offset = v_pieceWidthRange.y - v_position.x;
-        float alpha2 = offset / ((v_pieceWidthRange.y - v_pieceWidthRange.x) / 2.0);
+        float alpha2 = 0.4 + offset / ((v_pieceWidthRange.y - v_pieceWidthRange.x) / 2.0);
         alpha = clamp(0.0, alpha, alpha2);
     }
     out_color = vec4(color.rgb * alpha, color.a);
