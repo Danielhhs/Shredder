@@ -19,5 +19,5 @@ typedef struct {
 @interface ShredderPaperPieceSceneMesh : SceneMesh
 - (void) updateWithPercentage:(CGFloat)percentage;
 - (instancetype) initWithScreenWidth:(size_t)screenWidth screenHeight:(size_t)screenHeight totalPieces:(NSInteger)totalPieces index:(NSInteger)index;
-
+- (CGFloat) generateRadiusForScreenHeight:(CGFloat)screenHeight;
 @end

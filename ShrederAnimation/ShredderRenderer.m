@@ -11,6 +11,7 @@
 #import "OpenGLHelper.h"
 //#import "ShredderBackSceneMesh.h"
 #import "ShredderPaperPieceSceneMesh.h"
+#import "ShredderPaperBackPieceSceneMesh.h"
 @interface ShredderRenderer() {
     GLuint program;
     GLuint mvpLoc;
@@ -147,7 +148,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
         [self.frontMeshes addObject:mesh];
     }
     for (int i = 1; i < numberOfPieces; i+=2) {
-        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height totalPieces:numberOfPieces index:i];
+        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperBackPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height totalPieces:numberOfPieces index:i];
         [self.backMeshes addObject:mesh];
     }
     [self setupTextureWithView:view];

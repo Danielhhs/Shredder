@@ -18,12 +18,17 @@ void main() {
     vec3 normal = normalize(v_normal);
     float alpha = 1.0;
     if (v_position.y <= u_shredderPosition) {
-        float offset = v_position.x - v_pieceWidthRange.x;
-        alpha = 0.4 + offset / ((v_pieceWidthRange.y - v_pieceWidthRange.x) / 2.0);
-        alpha = clamp(0.0, 0.90, alpha);
-        offset = v_pieceWidthRange.y - v_position.x;
-        float alpha2 = 0.4 + offset / ((v_pieceWidthRange.y - v_pieceWidthRange.x) / 2.0);
-        alpha = clamp(0.0, alpha, alpha2);
+//        float offset = v_position.x - v_pieceWidthRange.x;
+//        alpha = 0.4 + offset / ((v_pieceWidthRange.y - v_pieceWidthRange.x) / 2.0);
+//        alpha = clamp(0.0, 0.90, alpha);
+//        offset = v_pieceWidthRange.y - v_position.x;
+//        float alpha2 = 0.4 + offset / ((v_pieceWidthRange.y - v_pieceWidthRange.x) / 2.0);
+//        alpha = clamp(0.0, alpha, alpha2);
+        float widthHalf = (v_pieceWidthRange.y - v_pieceWidthRange.x) / 2.0;
+        float middle = widthHalf + v_pieceWidthRange.x;
+        float a = -0.5 / widthHalf / widthHalf;
+        float x = v_position.x - middle;
+        alpha = a * x * x + 0.9;
     }
     out_color = vec4(color.rgb * alpha, color.a);
 }

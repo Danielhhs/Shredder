@@ -29,6 +29,7 @@
 		54D8AC411C16F64E00672A17 /* SceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC3C1C16F64E00672A17 /* SceneMesh.m */; };
 		54D8AC421C16F64E00672A17 /* ShredderRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC3E1C16F64E00672A17 /* ShredderRenderer.m */; };
 		54D8AC431C16F64E00672A17 /* ShredderFrontSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC401C16F64E00672A17 /* ShredderFrontSceneMesh.m */; };
+		54E64C5B1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E64C5A1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,6 +87,8 @@
 		54D8AC3E1C16F64E00672A17 /* ShredderRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderRenderer.m; sourceTree = "<group>"; };
 		54D8AC3F1C16F64E00672A17 /* ShredderFrontSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderFrontSceneMesh.h; sourceTree = "<group>"; };
 		54D8AC401C16F64E00672A17 /* ShredderFrontSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderFrontSceneMesh.m; sourceTree = "<group>"; };
+		54E64C591C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderPaperBackPieceSceneMesh.h; sourceTree = "<group>"; };
+		54E64C5A1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderPaperBackPieceSceneMesh.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +153,8 @@
 				542BDA121C1AD6C00061ECD7 /* ShredderFragmentShadow.glsl */,
 				5465EB381C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.h */,
 				5465EB391C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.m */,
+				54E64C591C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.h */,
+				54E64C5A1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m */,
 				54D8AC3B1C16F64E00672A17 /* SceneMesh.h */,
 				54D8AC3C1C16F64E00672A17 /* SceneMesh.m */,
 				54D8AC3D1C16F64E00672A17 /* ShredderRenderer.h */,
@@ -339,6 +344,7 @@
 				541ECB101C0E97C20078BC02 /* OpenGLHelper.m in Sources */,
 				542BDAA31C1ECC930061ECD7 /* ShredderSceneMesh.m in Sources */,
 				54D8AC421C16F64E00672A17 /* ShredderRenderer.m in Sources */,
+				54E64C5B1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m in Sources */,
 				5465EB3A1C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.m in Sources */,
 				541ECA451C0AB0F10078BC02 /* main.m in Sources */,
 				54D8AC411C16F64E00672A17 /* SceneMesh.m in Sources */,

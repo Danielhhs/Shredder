@@ -27,7 +27,7 @@
     NSInteger startPixelCount = index * pixelsPerPiece;
     _screenHeight = screenHeight;
     vertexCount = (pixelsPerPiece + 1) * (screenHeight + 1);
-    [self generateRadiusForScreenHeight:screenHeight];
+    self.cylinderRadius = [self generateRadiusForScreenHeight:screenHeight];
     vertices = malloc(vertexCount * sizeof(ShredderPaperPieceSceneVertex));
     
     for (int y = 0; y < screenHeight + 1; y++) {
@@ -43,7 +43,7 @@
             vertex->cylinderCenter = GLKVector3Make(vertex->position.x, 0, _cylinderRadius);
         }
     }
-    
+    NSLog(@"index = %lu, radius = %g", index, self.cylinderRadius);
     indexCount = (pixelsPerPiece * screenHeight * 2 * 3);
     GLuint *indices = malloc(indexCount * sizeof(GLuint));
     int counter = 0;
@@ -115,15 +115,15 @@
     glBufferData(GL_ARRAY_BUFFER, sizeof(ShredderPaperPieceSceneVertex) * vertexCount, vertices, GL_DYNAMIC_DRAW);
 }
 
-- (void) generateRadiusForScreenHeight:(CGFloat)screenHeight
+- (CGFloat) generateRadiusForScreenHeight:(CGFloat)screenHeight
 {
-    CGFloat amplitude = screenHeight / 10;
+    CGFloat amplitude = screenHeight / 0.4;
     CGFloat shredderCurlRadius = screenHeight / 0.2;
     int min = -50;
     int max = 50;
     int randomNumber = min + rand() % (max-min);
     double factor = (double) randomNumber / (max - min);
-    _cylinderRadius = shredderCurlRadius + factor * amplitude;
+    return shredderCurlRadius + factor * amplitude;
 }
 
 @end
