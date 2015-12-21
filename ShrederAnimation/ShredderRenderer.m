@@ -21,10 +21,13 @@
     GLuint texture;
     GLuint shredderPositionLoc;
     GLfloat shredderPosition;
+    GLuint fallingOffDistanceLoc;
+    
     GLuint backProgram;
     GLuint backMvpLoc;
     GLuint backSamplerLoc;
     GLuint backShredderPotisionLoc;
+    GLuint backFallingOffDistanceLoc;
     GLuint columnWidthLoc;
     GLfloat columnWidth;
     
@@ -39,6 +42,7 @@
     GLuint shredderSamplerLoc;
     GLuint shredderTexture;
     GLuint shredderShredderPositionLoc;
+    GLfloat shredderItemPosition;
 }
 @property (nonatomic, strong) EAGLContext *context;
 @property (nonatomic, strong) GLKView *animationView;
@@ -49,10 +53,12 @@
 @property (nonatomic) NSTimeInterval duration;
 @property (nonatomic) NSTimeInterval elapsedTime;
 @property (nonatomic, strong) CADisplayLink *displayLink;
+@property (nonatomic) NSTimeInterval fallingOffTime;
+@property (nonatomic) CGFloat fallingOffDistance;
 @end
 
-void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat near, GLfloat far);
-
+#define SHREDDERING_TIME_RATIO 0.8
+#define FALLING_OFF_TIME_RATIO 0.2
 @implementation ShredderRenderer
 
 - (instancetype) init
@@ -72,6 +78,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     mvpLoc = glGetUniformLocation(program, "u_mvpMatrix");
     samplerLoc = glGetUniformLocation(program, "s_tex");
     shredderPositionLoc = glGetUniformLocation(program, "u_shredderPosition");
+    fallingOffDistanceLoc = glGetUniformLocation(program, "u_fallingOffDistance");
     
     backProgram = [OpenGLHelper loadProgramWithVertexShaderSrc:@"ShredderBackPieceVertex.glsl" fragmentShaderSrc:@"ShredderBackPieceFragment.glsl"];
     glUseProgram(backProgram);
@@ -79,6 +86,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     backSamplerLoc = glGetUniformLocation(backProgram, "s_tex");
     backShredderPotisionLoc = glGetUniformLocation(backProgram, "u_shredderPosition");
     columnWidthLoc = glGetUniformLocation(backProgram, "u_columnWidth");
+    backFallingOffDistanceLoc = glGetUniformLocation(backProgram, "u_fallingOffDistance");
     
     confettiProgram = [OpenGLHelper loadProgramWithVertexShaderSrc:@"ShredderConfettiVertex.glsl" fragmentShaderSrc:@"ShredderConfettiFragment.glsl"];
     glUseProgram(confettiProgram);
@@ -116,6 +124,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     glUniformMatrix4fv(backMvpLoc, 1, GL_FALSE, mvp.m);
     glUniform1f(backShredderPotisionLoc, shredderPosition);
     glUniform1f(columnWidthLoc, columnWidth);
+    glUniform1f(backFallingOffDistanceLoc, self.fallingOffDistance);
     for (ShredderPaperPieceSceneMesh *mesh in self.backMeshes) {
         glBindVertexArray([mesh vertexArrayObject]);
         glActiveTexture(GL_TEXTURE0);
@@ -128,7 +137,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     glUseProgram(program);
     glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, mvp.m);
     glUniform1f(shredderPositionLoc, shredderPosition);
-    
+    glUniform1f(fallingOffDistanceLoc, self.fallingOffDistance);
     for (ShredderPaperPieceSceneMesh *mesh in self.frontMeshes) {
         glBindVertexArray([mesh vertexArrayObject]);
         glActiveTexture(GL_TEXTURE0);
@@ -152,7 +161,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     
     glUseProgram(shredderProgram);
     glUniformMatrix4fv(shredderMvpLoc, 1, GL_FALSE, mvp.m);
-    glUniform1f(shredderShredderPositionLoc, shredderPosition);
+    glUniform1f(shredderShredderPositionLoc, shredderItemPosition);
 
     glBindVertexArray([self.shredderMesh vertexArrayObejct]);
     glActiveTexture(GL_TEXTURE0);
@@ -254,10 +263,16 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     if (self.elapsedTime < self.duration) {
         CGFloat percent = (self.elapsedTime / self.duration);
         shredderPosition = self.animationView.bounds.size.height * percent;
+        shredderItemPosition = shredderPosition;
         [self updateMeshesWithPercent:percent timeInterval:displayLink.duration];
         [self.animationView display];
-    } else {
+    } else if(self.elapsedTime < self.duration * 1.5) {
         shredderPosition = self.animationView.bounds.size.height;
+        self.fallingOffTime += displayLink.duration;
+        shredderItemPosition += 0.5 * 10000 * self.fallingOffTime * self.fallingOffTime;
+        self.fallingOffDistance = -0.5 * 10000 * self.fallingOffTime * self.fallingOffTime;
+        [self.animationView display];
+    } else {
         [self updateMeshesWithPercent:1.f timeInterval:displayLink.duration];
         [self.animationView display];
         [self.displayLink invalidate];
