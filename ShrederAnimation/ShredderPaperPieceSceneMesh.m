@@ -7,11 +7,12 @@
 //
 
 #import "ShredderPaperPieceSceneMesh.h"
-
+#import <OpenGLES/ES3/glext.h>
 @interface ShredderPaperPieceSceneMesh () {
     ShredderPaperPieceSceneVertex *vertices;
     NSInteger vertexCount;
     NSInteger indexCount;
+    GLuint meshVAO;
 }
 @property (nonatomic) CGFloat cylinderRadius;
 @property (nonatomic) CGFloat screenHeight;
@@ -43,7 +44,7 @@
             vertex->cylinderCenter = GLKVector3Make(vertex->position.x, 0, _cylinderRadius);
         }
     }
-    NSLog(@"index = %lu, radius = %g", index, self.cylinderRadius);
+
     indexCount = (pixelsPerPiece * screenHeight * 2 * 3);
     GLuint *indices = malloc(indexCount * sizeof(GLuint));
     int counter = 0;
@@ -63,7 +64,40 @@
     
     NSData *vertexData = [NSData dataWithBytes:vertices length:vertexCount * sizeof(ShredderPaperPieceSceneVertex)];
     NSData *indexData = [NSData dataWithBytes:indices length:indexCount * sizeof(GLuint)];
+    [self createVAOWithVertexData:vertexData indexData:indexData];
     return [self initWithVerticesData:vertexData indicesData:indexData];
+}
+
+- (void) createVAOWithVertexData:(NSData *)vertexData indexData:(NSData *)indexData
+{
+    glGenBuffers(1, &vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, [vertexData length], [vertexData bytes], GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &indexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, [indexData length], [indexData bytes], GL_STATIC_DRAW);
+    
+    glGenVertexArrays(1, &meshVAO);
+    glBindVertexArray(meshVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ShredderPaperPieceSceneVertex), NULL + offsetof(ShredderPaperPieceSceneVertex, position));
+    
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ShredderPaperPieceSceneVertex), NULL + offsetof(ShredderPaperPieceSceneVertex, normal));
+    
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ShredderPaperPieceSceneVertex), NULL + offsetof(ShredderPaperPieceSceneVertex, texCoords));
+    
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(ShredderPaperPieceSceneVertex), NULL + offsetof(ShredderPaperPieceSceneVertex, pieceWidthRange));
+    
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(ShredderPaperPieceSceneVertex), NULL + offsetof(ShredderPaperPieceSceneVertex, cylinderCenter));
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+    glBindVertexArray(0);
 }
 
 - (void) prepareToDraw
@@ -104,21 +138,12 @@
 
 - (void) updateWithPercentage:(CGFloat)percentage
 {
-    GLfloat shredderLocation = self.screenHeight * percentage;
-    for (int y = 0; y <= shredderLocation; y++) {
-        for (int x = 0; x < self.pixelsPerPiece + 1; x++) {
-            ShredderPaperPieceSceneVertex *vertex = &vertices[y * (self.pixelsPerPiece + 1) + x];
-            vertex->cylinderCenter.y = shredderLocation;
-        }
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(ShredderPaperPieceSceneVertex) * vertexCount, vertices, GL_DYNAMIC_DRAW);
 }
 
 - (CGFloat) generateRadiusForScreenHeight:(CGFloat)screenHeight
 {
     CGFloat amplitude = screenHeight / 0.4;
-    CGFloat shredderCurlRadius = screenHeight / 0.2;
+    CGFloat shredderCurlRadius = screenHeight / 0.15;
     int min = -50;
     int max = 50;
     int randomNumber = min + rand() % (max-min);
@@ -126,4 +151,8 @@
     return shredderCurlRadius + factor * amplitude;
 }
 
+- (GLuint) vertexArrayObject
+{
+    return meshVAO;
+}
 @end

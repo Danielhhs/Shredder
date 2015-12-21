@@ -18,10 +18,12 @@ out vec2 v_pieceWidthRange;
 
 void main() {
     vec4 position = a_position;
+    vec3 cylinderCenter = a_cylinderCenter;
+    cylinderCenter.y = u_shredderPosition;
     if (position.y <= u_shredderPosition) {
-        float angle = (a_cylinderCenter.y - a_position.y) / a_cylinderCenter.z;
-        position.y = a_cylinderCenter.y - a_cylinderCenter.z * sin(angle);
-        position.z = a_cylinderCenter.z * (1.0 - cos(angle)) - 10.0;
+        float angle = (cylinderCenter.y - a_position.y) / cylinderCenter.z;
+        position.y = cylinderCenter.y - cylinderCenter.z * sin(angle);
+        position.z = cylinderCenter.z * (1.0 - cos(angle)) - 10.0;
     }
     gl_Position = u_mvpMatrix * position;
     v_texCoord = a_texCoord;

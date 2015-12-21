@@ -12,6 +12,7 @@
 //#import "ShredderBackSceneMesh.h"
 #import "ShredderPaperPieceSceneMesh.h"
 #import "ShredderPaperBackPieceSceneMesh.h"
+#import <OpenGLES/ES3/glext.h>
 @interface ShredderRenderer() {
     GLuint program;
     GLuint mvpLoc;
@@ -90,10 +91,12 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     glUniform1f(backShredderPotisionLoc, shredderPosition);
     glUniform1f(columnWidthLoc, columnWidth);
     for (ShredderPaperPieceSceneMesh *mesh in self.backMeshes) {
-        [mesh prepareToDraw];
+//        [mesh prepareToDraw];
+        glBindVertexArray([mesh vertexArrayObject]);
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(samplerLoc, 0);
         [mesh drawEntireMesh];
+        glBindVertexArray(0);
     }
 
     glUseProgram(program);
@@ -101,11 +104,12 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     glUniform1f(shredderPositionLoc, shredderPosition);
     
     for (ShredderPaperPieceSceneMesh *mesh in self.frontMeshes) {
-        [mesh prepareToDraw];
+        glBindVertexArray([mesh vertexArrayObject]);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
         glUniform1i(samplerLoc, 0);
         [mesh drawEntireMesh];
+        glBindVertexArray(0);
     }
     
 }
@@ -140,6 +144,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     [self setupGL];
     columnWidth = (GLfloat)view.bounds.size.width / numberOfPieces;
     self.animationView = [[GLKView alloc] initWithFrame:view.frame context:self.context];
+    self.animationView.drawableMultisample = GLKViewDrawableMultisample4X;
     self.animationView.delegate = self;
     self.frontMeshes = [NSMutableArray array];
     self.backMeshes = [NSMutableArray array];

@@ -13,7 +13,7 @@
 - (CGFloat) generateRadiusForScreenHeight:(CGFloat)screenHeight
 {
     CGFloat amplitude = screenHeight / 0.3;
-    CGFloat shredderCurlRadius = screenHeight / 0.15;
+    CGFloat shredderCurlRadius = screenHeight / 0.1;
     int min = -50;
     int max = 50;
     int randomNumber = min + rand() % (max-min);
