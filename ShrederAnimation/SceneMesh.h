@@ -27,4 +27,5 @@ typedef struct {
 - (void) makeDynamicAndUpdateWithVertices:(const SceneMeshVertex *)vertices numberOfVertices:(size_t)numberOfVertices;
 - (void) tearDown;
 - (void) drawEntireMesh;
+- (void) destroyGL;
 @end

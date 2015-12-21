@@ -79,4 +79,9 @@
 {
     
 }
+
+- (void) destroyGL
+{
+    [self tearDown];
+}
 @end

@@ -72,4 +72,14 @@
     return meshVAO;
 }
 
+- (void) destroyGL
+{
+    glDeleteVertexArrays(1, &meshVAO);
+    meshVAO = 0;
+    glDeleteBuffers(1, &vertexBuffer);
+    vertexBuffer = 0;
+    glDeleteBuffers(1, &indexBuffer);
+    indexBuffer = 0;
+}
+
 @end

@@ -29,7 +29,7 @@ typedef struct {
 @end
 
 #define CONFETTI_WIDTH 3
-#define CONFETTI_MIN_LENGTH 50
+#define CONFETTI_MIN_LENGTH 75
 #define CONFETTI_MAX_LENGTH 150
 
 @implementation ConfettiSceneMesh
@@ -132,5 +132,15 @@ typedef struct {
         self.fallingTime += timeInterval;
         self.fallingDistance = -0.5 * 10000 * self.fallingTime * self.fallingTime;
     }
+}
+
+- (void) destroyGL
+{
+    glDeleteVertexArrays(1, &meshVAO);
+    meshVAO = 0;
+    glDeleteBuffers(1, &vertexBuffer);
+    vertexBuffer = 0;
+    glDeleteBuffers(1, &indexBuffer);
+    indexBuffer = 0;
 }
 @end

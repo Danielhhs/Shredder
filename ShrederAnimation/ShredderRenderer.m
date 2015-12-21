@@ -55,21 +55,57 @@
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic) NSTimeInterval fallingOffTime;
 @property (nonatomic) CGFloat fallingOffDistance;
+@property (nonatomic, strong) void(^completion)(void);
 @end
 
 #define SHREDDERING_TIME_RATIO 0.8
 #define FALLING_OFF_TIME_RATIO 0.2
 @implementation ShredderRenderer
 
-- (instancetype) init
+#pragma mark - Public APIs
+- (void) startShredderingView:(UIView *)view inContainerView:(UIView *)containerView numberOfPieces:(NSInteger)numberOfPieces animationDuration:(NSTimeInterval)duration completion:(void (^)(void))completion
 {
-    self = [super init];
-    if (self) {
-        _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    self.completion = completion;
+    self.duration = duration;
+    self.elapsedTime = 0.f;
+    [self setupGL];
+    columnWidth = (GLfloat)view.bounds.size.width / numberOfPieces;
+    self.animationView = [[GLKView alloc] initWithFrame:view.frame context:self.context];
+    self.animationView.drawableMultisample = GLKViewDrawableMultisample4X;
+    self.animationView.delegate = self;
+    self.frontMeshes = [NSMutableArray array];
+    self.backMeshes = [NSMutableArray array];
+    self.confettiMeshes = [NSMutableArray array];
+    for (int i = 0; i < numberOfPieces; i+=2) {
+        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height yResolution:8 totalPieces:numberOfPieces index:i];
+        [self.frontMeshes addObject:mesh];
+        if (i != 0) {
+            [self generateConfettiForPieceAtIndex:i screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height numberOfPieces:numberOfPieces];
+        }
     }
-    return self;
+    for (int i = 1; i < numberOfPieces; i+=2) {
+        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperBackPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height yResolution:8 totalPieces:numberOfPieces index:i];
+        [self.backMeshes addObject:mesh];
+    }
+    self.shredderMesh = [[ShredderMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];
+    [self setupTextureWithView:view];
+    [self setupShredderTextureInView:view];
+    [containerView addSubview:self.animationView];
+    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update:)];
+    [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 }
 
+- (void) generateConfettiForPieceAtIndex:(NSInteger)index screenWidth:(size_t)screenWidth screenHeight:(size_t)screenHeight numberOfPieces:(NSInteger)numberOfPieces
+{
+    int numberOfConfetties = arc4random() % 5 + 5;
+    for (int i = 0; i < numberOfConfetties; i++) {
+        ConfettiSceneMesh *confettiMesh = [[ConfettiSceneMesh alloc] initWithScreenWidth:screenWidth screenHeight:screenHeight numberOfPieces:numberOfPieces index:index];
+        [self.confettiMeshes addObject:confettiMesh];
+    }
+}
+
+#pragma mark - Setup Open GL
 -  (void) setupGL
 {
     [EAGLContext setCurrentContext:self.context];
@@ -101,10 +137,6 @@
     shredderSamplerLoc = glGetUniformLocation(shredderProgram, "s_tex");
     shredderShredderPositionLoc = glGetUniformLocation(shredderProgram, "u_shredderPosition");
     
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
     glClearColor(0, 0, 0, 1);
 }
 
@@ -115,7 +147,7 @@
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, (GLuint)view.drawableWidth, (GLuint)view.drawableHeight);
     
-    GLKMatrix4 modelView = GLKMatrix4MakeTranslation(-view.frame.size.width / 2, -view.frame.size.height / 2, -view.frame.size.height / 2 - 200);
+    GLKMatrix4 modelView = GLKMatrix4MakeTranslation(-view.frame.size.width / 2, -view.frame.size.height / 2, -view.frame.size.height / 2);
     GLfloat aspect = (GLfloat)view.frame.size.width / view.frame.size.height;
     GLKMatrix4 perspective = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(90), aspect, 0.1, 1000);
     GLKMatrix4 mvp = GLKMatrix4Multiply(perspective, modelView);
@@ -171,6 +203,7 @@
     glBindVertexArray(0);
 }
 
+#pragma mark - Set up textures
 - (void) setupTextureWithView:(UIView *)view
 {
     glGenTextures(1, &texture);
@@ -217,46 +250,7 @@
     CGContextRelease(context);
 }
 
-- (void) startShredderingView:(UIView *)view inContainerView:(UIView *)containerView numberOfPieces:(NSInteger)numberOfPieces animationDuration:(NSTimeInterval)duration
-{
-    self.duration = duration;
-    self.elapsedTime = 0.f;
-    [self setupGL];
-    columnWidth = (GLfloat)view.bounds.size.width / numberOfPieces;
-    self.animationView = [[GLKView alloc] initWithFrame:view.frame context:self.context];
-    self.animationView.drawableMultisample = GLKViewDrawableMultisample4X;
-    self.animationView.delegate = self;
-    self.frontMeshes = [NSMutableArray array];
-    self.backMeshes = [NSMutableArray array];
-    self.confettiMeshes = [NSMutableArray array];
-    for (int i = 0; i < numberOfPieces; i+=2) {
-        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height yResolution:8 totalPieces:numberOfPieces index:i];
-        [self.frontMeshes addObject:mesh];
-        if (i != 0) {
-            [self generateConfettiForPieceAtIndex:i screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height numberOfPieces:numberOfPieces];
-        }
-    }
-    for (int i = 1; i < numberOfPieces; i+=2) {
-        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperBackPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height yResolution:8 totalPieces:numberOfPieces index:i];
-        [self.backMeshes addObject:mesh];
-    }
-    self.shredderMesh = [[ShredderMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];
-    [self setupTextureWithView:view];
-    [self setupShredderTextureInView:view];
-    [containerView addSubview:self.animationView];
-    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update:)];
-    [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-}
-
-- (void) generateConfettiForPieceAtIndex:(NSInteger)index screenWidth:(size_t)screenWidth screenHeight:(size_t)screenHeight numberOfPieces:(NSInteger)numberOfPieces
-{
-    int numberOfConfetties = arc4random() % 5 + 2;
-    for (int i = 0; i < numberOfConfetties; i++) {
-        ConfettiSceneMesh *confettiMesh = [[ConfettiSceneMesh alloc] initWithScreenWidth:screenWidth screenHeight:screenHeight numberOfPieces:numberOfPieces index:index];
-        [self.confettiMeshes addObject:confettiMesh];
-    }
-}
-
+#pragma mark - Animation Updates
 - (void) update:(CADisplayLink *)displayLink
 {
     self.elapsedTime += displayLink.duration;
@@ -276,6 +270,11 @@
         [self updateMeshesWithPercent:1.f timeInterval:displayLink.duration];
         [self.animationView display];
         [self.displayLink invalidate];
+        [self.animationView removeFromSuperview];
+        [self destroyGL];
+        if (self.completion) {
+            self.completion();
+        }
     }
 }
 
@@ -290,6 +289,36 @@
     for (ConfettiSceneMesh *mesh in self.confettiMeshes) {
         [mesh updateWithPercentage:percent timeInterval:timeInterval];
     }
+}
+
+#pragma mark - Clean up
+- (void) destroyGL
+{
+    [EAGLContext setCurrentContext:self.context];
+    for (ShredderPaperPieceSceneMesh *mesh in self.frontMeshes) {
+        [mesh destroyGL];
+    }
+    for (ShredderPaperBackPieceSceneMesh *mesh in self.backMeshes) {
+        [mesh destroyGL];
+    }
+    [self.shredderMesh destroyGL];
+    for (ConfettiSceneMesh *mesh in self.confettiMeshes) {
+        [mesh destroyGL];
+    }
+    glDeleteTextures(1, &texture);
+    texture = 0;
+    glDeleteTextures(1, &shredderTexture);
+    shredderTexture = 0;
+    glDeleteProgram(program);
+    program = 0;
+    glDeleteProgram(backProgram);
+    backProgram = 0;
+    glDeleteProgram(shredderProgram);
+    shredderProgram = 0;
+    glDeleteProgram(confettiProgram);
+    confettiProgram = 0;
+    [EAGLContext setCurrentContext:nil];
+    self.context = nil;
 }
 
 @end

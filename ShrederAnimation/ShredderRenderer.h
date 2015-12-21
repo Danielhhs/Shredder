@@ -10,6 +10,6 @@
 
 @interface ShredderRenderer : NSObject<GLKViewDelegate>
 
-- (void) startShredderingView:(UIView *)view inContainerView:(UIView *)containerView numberOfPieces:(NSInteger)numberOfPieces animationDuration:(NSTimeInterval)duration;
+- (void) startShredderingView:(UIView *)view inContainerView:(UIView *)containerView numberOfPieces:(NSInteger)numberOfPieces animationDuration:(NSTimeInterval)duration completion:(void(^)(void))completion;
 
 @end

@@ -16,17 +16,23 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    UIImageView *image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 100, self.view.bounds.size.width, self.view.bounds.size.height - 200)];
-    image.image = [UIImage imageNamed:@"image.jpg"];
     
     self.renderer = [[ShredderRenderer alloc] init];
-    [self.renderer startShredderingView:image inContainerView:self.view numberOfPieces:17 animationDuration:3];
+    self.view.backgroundColor = [UIColor blackColor];
     // Do any additional setup after loading the view, typically from a nib.
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+- (IBAction)transh:(id)sender {
+    
+    self.renderer = [[ShredderRenderer alloc] init];
+    UIImageView *image = [[UIImageView alloc] initWithFrame:CGRectMake(0, 100, self.view.bounds.size.width, self.view.bounds.size.height - 200)];
+    image.image = [UIImage imageNamed:@"image.jpg"];
+    
+    [self.renderer startShredderingView:image inContainerView:self.view numberOfPieces:15 animationDuration:3 completion:nil];
 }
 
 @end

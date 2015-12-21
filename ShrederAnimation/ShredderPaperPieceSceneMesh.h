@@ -21,4 +21,5 @@ typedef struct {
 - (instancetype) initWithScreenWidth:(size_t)screenWidth screenHeight:(size_t)screenHeight yResolution:(size_t)yResolution totalPieces:(NSInteger)totalPieces index:(NSInteger)index;
 - (CGFloat) generateRadiusForScreenHeight:(CGFloat)screenHeight;
 - (GLuint) vertexArrayObject;
+- (void) destroyGL;
 @end
