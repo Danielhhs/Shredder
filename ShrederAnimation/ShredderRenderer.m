@@ -9,7 +9,7 @@
 #import "ShredderRenderer.h"
 //#import "ShredderFrontSceneMesh.h"
 #import "OpenGLHelper.h"
-//#import "ShredderBackSceneMesh.h"
+#import "ShredderMesh.h"
 #import "ShredderPaperPieceSceneMesh.h"
 #import "ShredderPaperBackPieceSceneMesh.h"
 #import "ConfettiSceneMesh.h"
@@ -33,12 +33,19 @@
     GLuint confettiSamplerLoc;
     GLuint confettiShredderPositionLoc;
     GLuint confettiFallingDistanceLoc;
+    
+    GLuint shredderProgram;
+    GLuint shredderMvpLoc;
+    GLuint shredderSamplerLoc;
+    GLuint shredderTexture;
+    GLuint shredderShredderPositionLoc;
 }
 @property (nonatomic, strong) EAGLContext *context;
 @property (nonatomic, strong) GLKView *animationView;
 @property (nonatomic, strong) NSMutableArray *frontMeshes;
 @property (nonatomic, strong) NSMutableArray *backMeshes;
 @property (nonatomic, strong) NSMutableArray *confettiMeshes;
+@property (nonatomic, strong) ShredderMesh *shredderMesh;
 @property (nonatomic) NSTimeInterval duration;
 @property (nonatomic) NSTimeInterval elapsedTime;
 @property (nonatomic, strong) CADisplayLink *displayLink;
@@ -60,13 +67,13 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
 -  (void) setupGL
 {
     [EAGLContext setCurrentContext:self.context];
-    program = [OpenGLHelper loadProgramWithVertexShaderSrc:@"ShredderVertex.glsl" fragmentShaderSrc:@"ShredderFragment.glsl"];
+    program = [OpenGLHelper loadProgramWithVertexShaderSrc:@"ShredderPieceVertex.glsl" fragmentShaderSrc:@"ShredderPieceFragment.glsl"];
     glUseProgram(program);
     mvpLoc = glGetUniformLocation(program, "u_mvpMatrix");
     samplerLoc = glGetUniformLocation(program, "s_tex");
     shredderPositionLoc = glGetUniformLocation(program, "u_shredderPosition");
     
-    backProgram = [OpenGLHelper loadProgramWithVertexShaderSrc:@"ShredderVertexShadow.glsl" fragmentShaderSrc:@"ShredderFragmentShadow.glsl"];
+    backProgram = [OpenGLHelper loadProgramWithVertexShaderSrc:@"ShredderBackPieceVertex.glsl" fragmentShaderSrc:@"ShredderBackPieceFragment.glsl"];
     glUseProgram(backProgram);
     backMvpLoc = glGetUniformLocation(backProgram, "u_mvpMatrix");
     backSamplerLoc = glGetUniformLocation(backProgram, "s_tex");
@@ -79,6 +86,12 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     confettiSamplerLoc = glGetUniformLocation(confettiProgram, "s_tex");
     confettiShredderPositionLoc = glGetUniformLocation(confettiProgram, "u_shredderPosition");
     confettiFallingDistanceLoc = glGetUniformLocation(confettiProgram, "u_fallingDistance");
+    
+    shredderProgram = [OpenGLHelper loadProgramWithVertexShaderSrc:@"ShredderVertex.glsl" fragmentShaderSrc:@"ShredderFragment.glsl"];
+    glUseProgram(shredderProgram);
+    shredderMvpLoc = glGetUniformLocation(shredderProgram, "u_mvpMatrix");
+    shredderSamplerLoc = glGetUniformLocation(shredderProgram, "s_tex");
+    shredderShredderPositionLoc = glGetUniformLocation(shredderProgram, "u_shredderPosition");
     
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -106,6 +119,7 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     for (ShredderPaperPieceSceneMesh *mesh in self.backMeshes) {
         glBindVertexArray([mesh vertexArrayObject]);
         glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
         glUniform1i(samplerLoc, 0);
         [mesh drawEntireMesh];
         glBindVertexArray(0);
@@ -135,6 +149,17 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
         [mesh drawEntireMesh];
         glBindVertexArray(0);
     }
+    
+    glUseProgram(shredderProgram);
+    glUniformMatrix4fv(shredderMvpLoc, 1, GL_FALSE, mvp.m);
+    glUniform1f(shredderShredderPositionLoc, shredderPosition);
+
+    glBindVertexArray([self.shredderMesh vertexArrayObejct]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, shredderTexture);
+    glUniform1i(shredderSamplerLoc, 0);
+    [self.shredderMesh drawEntireMesh];
+    glBindVertexArray(0);
 }
 
 - (void) setupTextureWithView:(UIView *)view
@@ -160,6 +185,29 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     
 }
 
+- (void) setupShredderTextureInView:(UIView *)view
+{
+    glGenTextures(1, &shredderTexture);
+    glBindTexture(GL_TEXTURE_2D, shredderTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    size_t bitsPerComponent = 8;
+    size_t bytesPerRow = view.bounds.size.width * 4;
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef context = CGBitmapContextCreate(NULL, view.bounds.size.width, view.bounds.size.height, bitsPerComponent, bytesPerRow, colorSpace, 1);
+    CGColorSpaceRelease(colorSpace);
+    
+    UIImage *shredderImage = [UIImage imageNamed:@"Shredder.png"];
+    CGContextDrawImage(context, CGRectMake(0, 0, view.bounds.size.width, view.bounds.size.height), shredderImage.CGImage);
+    
+    GLubyte *textureData = CGBitmapContextGetData(context);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, view.bounds.size.width, view.bounds.size.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+    CGContextRelease(context);
+}
+
 - (void) startShredderingView:(UIView *)view inContainerView:(UIView *)containerView numberOfPieces:(NSInteger)numberOfPieces animationDuration:(NSTimeInterval)duration
 {
     self.duration = duration;
@@ -183,7 +231,9 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
         ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperBackPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height totalPieces:numberOfPieces index:i];
         [self.backMeshes addObject:mesh];
     }
+    self.shredderMesh = [[ShredderMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];
     [self setupTextureWithView:view];
+    [self setupShredderTextureInView:view];
     [containerView addSubview:self.animationView];
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update:)];
     [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
