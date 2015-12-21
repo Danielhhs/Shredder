@@ -23,13 +23,14 @@
 		541ECB141C0E98800078BC02 /* ShredderFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 541ECB131C0E98800078BC02 /* ShredderFragment.glsl */; };
 		542BDA111C1AD6B40061ECD7 /* ShredderVertexShadow.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 542BDA101C1AD6B40061ECD7 /* ShredderVertexShadow.glsl */; };
 		542BDA131C1AD6C00061ECD7 /* ShredderFragmentShadow.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 542BDA121C1AD6C00061ECD7 /* ShredderFragmentShadow.glsl */; };
-		542BDAA01C1ECC520061ECD7 /* ShredderBackSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 542BDA9F1C1ECC520061ECD7 /* ShredderBackSceneMesh.m */; };
-		542BDAA31C1ECC930061ECD7 /* ShredderSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 542BDAA21C1ECC930061ECD7 /* ShredderSceneMesh.m */; };
 		5465EB3A1C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 5465EB391C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.m */; };
 		54D8AC411C16F64E00672A17 /* SceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC3C1C16F64E00672A17 /* SceneMesh.m */; };
 		54D8AC421C16F64E00672A17 /* ShredderRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC3E1C16F64E00672A17 /* ShredderRenderer.m */; };
-		54D8AC431C16F64E00672A17 /* ShredderFrontSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54D8AC401C16F64E00672A17 /* ShredderFrontSceneMesh.m */; };
 		54E64C5B1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E64C5A1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m */; };
+		54E64C5E1C27AAB800AEEB9B /* ConfettiSceneMesh.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E64C5D1C27AAB800AEEB9B /* ConfettiSceneMesh.m */; };
+		54E64C601C27CECE00AEEB9B /* ShredderConfettiVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 54E64C5F1C27CECE00AEEB9B /* ShredderConfettiVertex.glsl */; };
+		54E64C621C27CEED00AEEB9B /* ShredderConfettiFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 54E64C611C27CEED00AEEB9B /* ShredderConfettiFragment.glsl */; };
+		54F139961C28169800EC0F90 /* Shredder.png in Resources */ = {isa = PBXBuildFile; fileRef = 54F139951C28169800EC0F90 /* Shredder.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,20 +76,19 @@
 		541ECB131C0E98800078BC02 /* ShredderFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ShredderFragment.glsl; sourceTree = "<group>"; };
 		542BDA101C1AD6B40061ECD7 /* ShredderVertexShadow.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ShredderVertexShadow.glsl; sourceTree = "<group>"; };
 		542BDA121C1AD6C00061ECD7 /* ShredderFragmentShadow.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ShredderFragmentShadow.glsl; sourceTree = "<group>"; };
-		542BDA9E1C1ECC520061ECD7 /* ShredderBackSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderBackSceneMesh.h; sourceTree = "<group>"; };
-		542BDA9F1C1ECC520061ECD7 /* ShredderBackSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderBackSceneMesh.m; sourceTree = "<group>"; };
-		542BDAA11C1ECC930061ECD7 /* ShredderSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderSceneMesh.h; sourceTree = "<group>"; };
-		542BDAA21C1ECC930061ECD7 /* ShredderSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderSceneMesh.m; sourceTree = "<group>"; };
 		5465EB381C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderPaperPieceSceneMesh.h; sourceTree = "<group>"; };
 		5465EB391C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderPaperPieceSceneMesh.m; sourceTree = "<group>"; };
 		54D8AC3B1C16F64E00672A17 /* SceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneMesh.h; sourceTree = "<group>"; };
 		54D8AC3C1C16F64E00672A17 /* SceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SceneMesh.m; sourceTree = "<group>"; };
 		54D8AC3D1C16F64E00672A17 /* ShredderRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderRenderer.h; sourceTree = "<group>"; };
 		54D8AC3E1C16F64E00672A17 /* ShredderRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderRenderer.m; sourceTree = "<group>"; };
-		54D8AC3F1C16F64E00672A17 /* ShredderFrontSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderFrontSceneMesh.h; sourceTree = "<group>"; };
-		54D8AC401C16F64E00672A17 /* ShredderFrontSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderFrontSceneMesh.m; sourceTree = "<group>"; };
 		54E64C591C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShredderPaperBackPieceSceneMesh.h; sourceTree = "<group>"; };
 		54E64C5A1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShredderPaperBackPieceSceneMesh.m; sourceTree = "<group>"; };
+		54E64C5C1C27AAB800AEEB9B /* ConfettiSceneMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfettiSceneMesh.h; sourceTree = "<group>"; };
+		54E64C5D1C27AAB800AEEB9B /* ConfettiSceneMesh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfettiSceneMesh.m; sourceTree = "<group>"; };
+		54E64C5F1C27CECE00AEEB9B /* ShredderConfettiVertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ShredderConfettiVertex.glsl; sourceTree = "<group>"; };
+		54E64C611C27CEED00AEEB9B /* ShredderConfettiFragment.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ShredderConfettiFragment.glsl; sourceTree = "<group>"; };
+		54F139951C28169800EC0F90 /* Shredder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Shredder.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +143,7 @@
 		541ECA421C0AB0F10078BC02 /* ShrederAnimation */ = {
 			isa = PBXGroup;
 			children = (
+				54F139951C28169800EC0F90 /* Shredder.png */,
 				541ECA461C0AB0F10078BC02 /* AppDelegate.h */,
 				541ECA471C0AB0F10078BC02 /* AppDelegate.m */,
 				541ECA491C0AB0F10078BC02 /* ViewController.h */,
@@ -151,20 +152,18 @@
 				541ECB131C0E98800078BC02 /* ShredderFragment.glsl */,
 				542BDA101C1AD6B40061ECD7 /* ShredderVertexShadow.glsl */,
 				542BDA121C1AD6C00061ECD7 /* ShredderFragmentShadow.glsl */,
+				54E64C5F1C27CECE00AEEB9B /* ShredderConfettiVertex.glsl */,
+				54E64C611C27CEED00AEEB9B /* ShredderConfettiFragment.glsl */,
 				5465EB381C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.h */,
 				5465EB391C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.m */,
 				54E64C591C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.h */,
 				54E64C5A1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m */,
+				54E64C5C1C27AAB800AEEB9B /* ConfettiSceneMesh.h */,
+				54E64C5D1C27AAB800AEEB9B /* ConfettiSceneMesh.m */,
 				54D8AC3B1C16F64E00672A17 /* SceneMesh.h */,
 				54D8AC3C1C16F64E00672A17 /* SceneMesh.m */,
 				54D8AC3D1C16F64E00672A17 /* ShredderRenderer.h */,
 				54D8AC3E1C16F64E00672A17 /* ShredderRenderer.m */,
-				542BDAA11C1ECC930061ECD7 /* ShredderSceneMesh.h */,
-				542BDAA21C1ECC930061ECD7 /* ShredderSceneMesh.m */,
-				54D8AC3F1C16F64E00672A17 /* ShredderFrontSceneMesh.h */,
-				54D8AC401C16F64E00672A17 /* ShredderFrontSceneMesh.m */,
-				542BDA9E1C1ECC520061ECD7 /* ShredderBackSceneMesh.h */,
-				542BDA9F1C1ECC520061ECD7 /* ShredderBackSceneMesh.m */,
 				541ECB0E1C0E97C20078BC02 /* OpenGLHelper.h */,
 				541ECB0F1C0E97C20078BC02 /* OpenGLHelper.m */,
 				541ECB0C1C0E8C6B0078BC02 /* image.jpg */,
@@ -306,13 +305,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54F139961C28169800EC0F90 /* Shredder.png in Resources */,
 				541ECB141C0E98800078BC02 /* ShredderFragment.glsl in Resources */,
 				541ECA531C0AB0F10078BC02 /* LaunchScreen.storyboard in Resources */,
+				54E64C601C27CECE00AEEB9B /* ShredderConfettiVertex.glsl in Resources */,
 				541ECA501C0AB0F10078BC02 /* Assets.xcassets in Resources */,
 				542BDA111C1AD6B40061ECD7 /* ShredderVertexShadow.glsl in Resources */,
 				541ECB121C0E98430078BC02 /* ShredderVertex.glsl in Resources */,
 				541ECA4E1C0AB0F10078BC02 /* Main.storyboard in Resources */,
 				541ECB0D1C0E8C6C0078BC02 /* image.jpg in Resources */,
+				54E64C621C27CEED00AEEB9B /* ShredderConfettiFragment.glsl in Resources */,
 				542BDA131C1AD6C00061ECD7 /* ShredderFragmentShadow.glsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -339,16 +341,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				541ECA4B1C0AB0F10078BC02 /* ViewController.m in Sources */,
+				54E64C5E1C27AAB800AEEB9B /* ConfettiSceneMesh.m in Sources */,
 				541ECA481C0AB0F10078BC02 /* AppDelegate.m in Sources */,
-				54D8AC431C16F64E00672A17 /* ShredderFrontSceneMesh.m in Sources */,
 				541ECB101C0E97C20078BC02 /* OpenGLHelper.m in Sources */,
-				542BDAA31C1ECC930061ECD7 /* ShredderSceneMesh.m in Sources */,
 				54D8AC421C16F64E00672A17 /* ShredderRenderer.m in Sources */,
 				54E64C5B1C279F4C00AEEB9B /* ShredderPaperBackPieceSceneMesh.m in Sources */,
 				5465EB3A1C2007FC004BE6F2 /* ShredderPaperPieceSceneMesh.m in Sources */,
 				541ECA451C0AB0F10078BC02 /* main.m in Sources */,
 				54D8AC411C16F64E00672A17 /* SceneMesh.m in Sources */,
-				542BDAA01C1ECC520061ECD7 /* ShredderBackSceneMesh.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

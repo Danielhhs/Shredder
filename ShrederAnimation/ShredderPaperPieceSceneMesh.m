@@ -47,7 +47,6 @@
 
     indexCount = (pixelsPerPiece * screenHeight * 2 * 3);
     GLuint *indices = malloc(indexCount * sizeof(GLuint));
-    int counter = 0;
     for (int y = 0; y < screenHeight; y++) {
         for (int x = 0; x < pixelsPerPiece; x++) {
             NSInteger idx = y * pixelsPerPiece + x;
@@ -58,7 +57,6 @@
             indices[idx * 6 + 3] = (GLuint)i + 1;
             indices[idx * 6 + 4] = (GLuint)(i + pixelsPerPiece + 2);
             indices[idx * 6 + 5] = (GLuint)(i + pixelsPerPiece + 1);
-            counter++;
         }
     }
     

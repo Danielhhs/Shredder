@@ -12,6 +12,7 @@
 //#import "ShredderBackSceneMesh.h"
 #import "ShredderPaperPieceSceneMesh.h"
 #import "ShredderPaperBackPieceSceneMesh.h"
+#import "ConfettiSceneMesh.h"
 #import <OpenGLES/ES3/glext.h>
 @interface ShredderRenderer() {
     GLuint program;
@@ -26,13 +27,18 @@
     GLuint backShredderPotisionLoc;
     GLuint columnWidthLoc;
     GLfloat columnWidth;
+    
+    GLuint confettiProgram;
+    GLuint confettiMvpLoc;
+    GLuint confettiSamplerLoc;
+    GLuint confettiShredderPositionLoc;
+    GLuint confettiFallingDistanceLoc;
 }
 @property (nonatomic, strong) EAGLContext *context;
 @property (nonatomic, strong) GLKView *animationView;
-//@property (nonatomic, strong) ShredderFrontSceneMesh *mesh;
-//@property (nonatomic, strong) ShredderBackSceneMesh *backMesh;
 @property (nonatomic, strong) NSMutableArray *frontMeshes;
 @property (nonatomic, strong) NSMutableArray *backMeshes;
+@property (nonatomic, strong) NSMutableArray *confettiMeshes;
 @property (nonatomic) NSTimeInterval duration;
 @property (nonatomic) NSTimeInterval elapsedTime;
 @property (nonatomic, strong) CADisplayLink *displayLink;
@@ -67,6 +73,13 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     backShredderPotisionLoc = glGetUniformLocation(backProgram, "u_shredderPosition");
     columnWidthLoc = glGetUniformLocation(backProgram, "u_columnWidth");
     
+    confettiProgram = [OpenGLHelper loadProgramWithVertexShaderSrc:@"ShredderConfettiVertex.glsl" fragmentShaderSrc:@"ShredderConfettiFragment.glsl"];
+    glUseProgram(confettiProgram);
+    confettiMvpLoc = glGetUniformLocation(confettiProgram, "u_mvpMatrix");
+    confettiSamplerLoc = glGetUniformLocation(confettiProgram, "s_tex");
+    confettiShredderPositionLoc = glGetUniformLocation(confettiProgram, "u_shredderPosition");
+    confettiFallingDistanceLoc = glGetUniformLocation(confettiProgram, "u_fallingDistance");
+    
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -91,7 +104,6 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     glUniform1f(backShredderPotisionLoc, shredderPosition);
     glUniform1f(columnWidthLoc, columnWidth);
     for (ShredderPaperPieceSceneMesh *mesh in self.backMeshes) {
-//        [mesh prepareToDraw];
         glBindVertexArray([mesh vertexArrayObject]);
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(samplerLoc, 0);
@@ -111,7 +123,18 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
         [mesh drawEntireMesh];
         glBindVertexArray(0);
     }
-    
+
+    glUseProgram(confettiProgram);
+    glUniformMatrix4fv(confettiMvpLoc, 1, GL_FALSE, mvp.m);
+    glUniform1f(confettiShredderPositionLoc, shredderPosition);
+    for (ConfettiSceneMesh *mesh in self.confettiMeshes) {
+        glBindVertexArray([mesh vertexArrayObject]);
+        glUniform1f(confettiFallingDistanceLoc, [mesh fallingDistance]);
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(confettiSamplerLoc, 0);
+        [mesh drawEntireMesh];
+        glBindVertexArray(0);
+    }
 }
 
 - (void) setupTextureWithView:(UIView *)view
@@ -148,9 +171,13 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     self.animationView.delegate = self;
     self.frontMeshes = [NSMutableArray array];
     self.backMeshes = [NSMutableArray array];
+    self.confettiMeshes = [NSMutableArray array];
     for (int i = 0; i < numberOfPieces; i+=2) {
         ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height totalPieces:numberOfPieces index:i];
         [self.frontMeshes addObject:mesh];
+        if (i != 0) {
+            [self generateConfettiForPieceAtIndex:i screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height numberOfPieces:numberOfPieces];
+        }
     }
     for (int i = 1; i < numberOfPieces; i+=2) {
         ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperBackPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height totalPieces:numberOfPieces index:i];
@@ -162,23 +189,32 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 }
 
+- (void) generateConfettiForPieceAtIndex:(NSInteger)index screenWidth:(size_t)screenWidth screenHeight:(size_t)screenHeight numberOfPieces:(NSInteger)numberOfPieces
+{
+    int numberOfConfetties = arc4random() % 5 + 2;
+    for (int i = 0; i < numberOfConfetties; i++) {
+        ConfettiSceneMesh *confettiMesh = [[ConfettiSceneMesh alloc] initWithScreenWidth:screenWidth screenHeight:screenHeight numberOfPieces:numberOfPieces index:index];
+        [self.confettiMeshes addObject:confettiMesh];
+    }
+}
+
 - (void) update:(CADisplayLink *)displayLink
 {
     self.elapsedTime += displayLink.duration;
     if (self.elapsedTime < self.duration) {
         CGFloat percent = (self.elapsedTime / self.duration);
         shredderPosition = self.animationView.bounds.size.height * percent;
-        [self updateMeshesWithPercent:percent];
+        [self updateMeshesWithPercent:percent timeInterval:displayLink.duration];
         [self.animationView display];
     } else {
         shredderPosition = self.animationView.bounds.size.height;
-        [self updateMeshesWithPercent:1.f];
+        [self updateMeshesWithPercent:1.f timeInterval:displayLink.duration];
         [self.animationView display];
         [self.displayLink invalidate];
     }
 }
 
-- (void) updateMeshesWithPercent:(CGFloat)percent
+- (void) updateMeshesWithPercent:(CGFloat)percent timeInterval:(NSTimeInterval)timeInterval
 {
     for (ShredderPaperPieceSceneMesh *mesh in self.frontMeshes) {
         [mesh updateWithPercentage:percent];
@@ -186,14 +222,9 @@ void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloa
     for (ShredderPaperPieceSceneMesh *mesh in self.backMeshes) {
         [mesh updateWithPercentage:percent];
     }
+    for (ConfettiSceneMesh *mesh in self.confettiMeshes) {
+        [mesh updateWithPercentage:percent timeInterval:timeInterval];
+    }
 }
 
 @end
-
-void OrthoM4x4(GLfloat *out, GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat near, GLfloat far)
-{
-    out[0] = 2.f/(right-left); out[4] = 0.f; out[8] = 0.f; out[12] = -(right+left)/(right-left);
-    out[1] = 0.f; out[5] = 2.f/(top-bottom); out[9] = 0.f; out[13] = -(top+bottom)/(top-bottom);
-    out[2] = 0.f; out[6] = 0.f; out[10] = -2.f/(far-near); out[14] = -(far+near)/(far-near);
-    out[3] = 0.f; out[7] = 0.f; out[11] = 0.f; out[15] = 1.f;
-}
