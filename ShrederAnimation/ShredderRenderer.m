@@ -230,14 +230,14 @@
     self.backMeshes = [NSMutableArray array];
     self.confettiMeshes = [NSMutableArray array];
     for (int i = 0; i < numberOfPieces; i+=2) {
-        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height totalPieces:numberOfPieces index:i];
+        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height yResolution:8 totalPieces:numberOfPieces index:i];
         [self.frontMeshes addObject:mesh];
         if (i != 0) {
             [self generateConfettiForPieceAtIndex:i screenWidth:view.bounds.size.width screenHeight:view.bounds.size.height numberOfPieces:numberOfPieces];
         }
     }
     for (int i = 1; i < numberOfPieces; i+=2) {
-        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperBackPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height totalPieces:numberOfPieces index:i];
+        ShredderPaperPieceSceneMesh *mesh = [[ShredderPaperBackPieceSceneMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height yResolution:8 totalPieces:numberOfPieces index:i];
         [self.backMeshes addObject:mesh];
     }
     self.shredderMesh = [[ShredderMesh alloc] initWithScreenWidth:view.bounds.size.width screenHeight:view.bounds.size.height];

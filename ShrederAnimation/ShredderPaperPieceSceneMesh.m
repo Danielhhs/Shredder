@@ -17,26 +17,30 @@
 @property (nonatomic) CGFloat cylinderRadius;
 @property (nonatomic) CGFloat screenHeight;
 @property (nonatomic) NSInteger pixelsPerPiece;
+@property (nonatomic) size_t yResolution;
 @end
 
 @implementation ShredderPaperPieceSceneMesh
 
-- (instancetype) initWithScreenWidth:(size_t)screenWidth screenHeight:(size_t)screenHeight totalPieces:(NSInteger)totalPieces index:(NSInteger)index
+- (instancetype) initWithScreenWidth:(size_t)screenWidth screenHeight:(size_t)screenHeight yResolution:(size_t)yResolution totalPieces:(NSInteger)totalPieces index:(NSInteger)index
 {
     NSInteger pixelsPerPiece = screenWidth / totalPieces;
     _pixelsPerPiece = pixelsPerPiece;
     NSInteger startPixelCount = index * pixelsPerPiece;
     _screenHeight = screenHeight;
-    vertexCount = (pixelsPerPiece + 1) * (screenHeight + 1);
+    _yResolution = yResolution;
+    size_t verticalVertexCount = screenHeight / yResolution + 1;
+    
+    vertexCount = (pixelsPerPiece + 1) * (verticalVertexCount);
     self.cylinderRadius = [self generateRadiusForScreenHeight:screenHeight];
     vertices = malloc(vertexCount * sizeof(ShredderPaperPieceSceneVertex));
     
-    for (int y = 0; y < screenHeight + 1; y++) {
-        GLfloat ty = (GLfloat)y / screenHeight;
+    for (int y = 0; y < verticalVertexCount + 1; y++) {
+        GLfloat ty = (GLfloat)y / verticalVertexCount;
         for (int x = 0; x < pixelsPerPiece + 1; x++) {
             ShredderPaperPieceSceneVertex *vertex = &vertices[y * (pixelsPerPiece + 1) + x];
             vertex->position.x = x + startPixelCount;
-            vertex->position.y = y;
+            vertex->position.y = ty * screenHeight;
             vertex->position.z = 0;
             vertex->texCoords.x = (GLfloat)(x + startPixelCount) / screenWidth;
             vertex->texCoords.y = ty;
@@ -45,9 +49,9 @@
         }
     }
 
-    indexCount = (pixelsPerPiece * screenHeight * 2 * 3);
+    indexCount = (pixelsPerPiece * (verticalVertexCount - 1) * 2 * 3);
     GLuint *indices = malloc(indexCount * sizeof(GLuint));
-    for (int y = 0; y < screenHeight; y++) {
+    for (int y = 0; y < verticalVertexCount; y++) {
         for (int x = 0; x < pixelsPerPiece; x++) {
             NSInteger idx = y * pixelsPerPiece + x;
             NSInteger i = y * (pixelsPerPiece + 1) + x;
